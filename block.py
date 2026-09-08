@@ -11,6 +11,14 @@ class Block:
         self.nonce = nonce
         self.hash = self.calculate_hash()
 
+    def mine_block(self, difficulty):
+    """Busca un nonce tal que el hash empiece con 'difficulty' ceros."""
+    target = "0" * difficulty
+    while self.hash[:difficulty] != target:
+        self.nonce += 1
+        self.hash = self.calculate_hash()
+    print(f"Bloque minado: {self.hash}")
+    
     def calculate_hash(self):
         block_data = {
             "index": self.index,
