@@ -1,1 +1,1 @@
-# virtual-coin
+# RottCoin
