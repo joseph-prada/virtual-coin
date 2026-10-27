@@ -1,3 +1,5 @@
+from block import Block
+
 class Blockchain:
     def __init__(self, difficulty=4):
         self.chain = [self.create_genesis_block()]
@@ -17,6 +19,11 @@ class Blockchain:
         from wallet import verify_transaction
 
         transaction_data = json.dumps(transaction, sort_keys=True)
+
+        monto = transaction.get("monto")
+        if not isinstance(monto, (int, float)) or isinstance(monto, bool) or monto <= 0:
+            print("Transacción rechazada: Monto inválido.")
+            return False
 
         if not verify_transaction(public_key, transaction_data, signature):
             print("Transacción rechazada: firma inválida.")
