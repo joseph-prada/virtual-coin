@@ -16,7 +16,7 @@ class Blockchain:
     def add_transaction(self, transaction: dict, public_key, signature) -> bool:
         """Verifica firma y saldo antes de aceptar la transacción en el mempool."""
         import json
-        from wallet import verify_transaction
+        from wallet import verify_transaction, get_address
 
         transaction_data = json.dumps(transaction, sort_keys=True)
 
@@ -29,11 +29,18 @@ class Blockchain:
             print("Transacción rechazada: firma inválida.")
             return False
 
-        if transaction.get("de") != "SISTEMA":  # las recompensas no tienen saldo previo
-            saldo = self.get_balance(transaction["de"])
-            if saldo < transaction["monto"]:
-                print("Transacción rechazada: saldo insuficiente.")
-                return False
+        if transaction.get("de") == "SISTEMA":
+            print("Transacción rechazada: solo el minado puede emitir monedas.")
+            return False
+
+        if get_address(public_key) != transaction.get("de"):
+            print("Transacción rechazada: la llave no corresponde al emisor.")
+            return False
+
+        pendiente = sum(t["monto"] for t in self.mempool if t.get("de") == transaction["de"])
+        if self.get_balance(transaction["de"]) - pendiente < transaction["monto"]:
+            print("Transacción rechazada: saldo insuficiente.")
+            return False
 
         self.mempool.append(transaction)
         return True
@@ -72,5 +79,7 @@ class Blockchain:
             if current_block.hash != current_block.calculate_hash():
                 return False
             if current_block.previous_hash != previous_block.hash:
+                return False
+            if current_block.hash[:self.difficulty] != "0" * self.difficulty:  # Proof of work
                 return False
         return True
