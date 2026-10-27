@@ -48,3 +48,10 @@ for d in [2, 3, 4]:
     test_chain.mine_pending_transactions(addr_a)
     duracion = time.time() - inicio
     print(f"Dificultad {d}: {duracion:.4f} segundos")
+
+# --- Persistencia ---
+print("\n--- PERSISTENCIA ---")
+mi_blockchain.save_to_file("cadena.json")
+cargada = Blockchain.load_from_file("cadena.json")
+print(f"Cadena guardada y recargada. Bloques: {len(cargada.chain)} | Válida: {cargada.is_chain_valid()}")
+print(f"Balance de A tras recargar: {cargada.get_balance(addr_a)}")

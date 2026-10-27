@@ -72,6 +72,31 @@ class Blockchain:
                     balance -= tx["monto"]
         return balance
 
+    def save_to_file(self, path="cadena.json"):
+        import json
+        data = {
+            "difficulty": self.difficulty,
+            "mining_reward": self.mining_reward,
+            "chain": [b.to_dict() for b in self.chain],
+            "mempool": self.mempool,
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+    @classmethod
+    def load_from_file(cls, path="cadena.json"):
+        """Carga la cadena desde disco. Lanza ValueError si el archivo fue alterado."""
+        import json
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        bc = cls(difficulty=data["difficulty"])
+        bc.mining_reward = data["mining_reward"]
+        bc.chain = [Block.from_dict(b) for b in data["chain"]]
+        bc.mempool = data["mempool"]
+        if not bc.is_chain_valid():
+            raise ValueError("La cadena guardada es inválida o fue manipulada.")
+        return bc
+
     def is_chain_valid(self):
         for i in range(1, len(self.chain)):
             current_block = self.chain[i]

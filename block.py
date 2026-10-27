@@ -29,3 +29,20 @@ class Block:
         }
         encoded_block = json.dumps(block_data, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
+
+    def to_dict(self):
+        return {
+            "index": self.index,
+            "timestamp": self.timestamp,
+            "transactions": self.transactions,
+            "previous_hash": self.previous_hash,
+            "nonce": self.nonce,
+            "hash": self.hash,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        block = cls(data["index"], data["transactions"], data["previous_hash"], data["nonce"])
+        block.timestamp = data["timestamp"]
+        block.hash = data["hash"]  # se conserva el hash guardado; is_chain_valid detecta alteraciones
+        return block
